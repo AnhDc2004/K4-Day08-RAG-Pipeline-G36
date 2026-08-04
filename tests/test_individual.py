@@ -256,7 +256,7 @@ class TestTask5(unittest.TestCase):
         """semantic_search() trả về list."""
         search = self._import_task5()
         try:
-            results = search("payment methods", top_k=3)
+            results = search("IELTS writing band descriptors", top_k=3)
             self.assertIsInstance(results, list)
         except NotImplementedError:
             self.skipTest("semantic_search chưa implement")
@@ -265,7 +265,7 @@ class TestTask5(unittest.TestCase):
         """Mỗi result có 'content', 'score', 'metadata'."""
         search = self._import_task5()
         try:
-            results = search("return refund policy", top_k=3)
+            results = search("Lexical Resource Task 2", top_k=3)
             if not results:
                 self.skipTest("Không có kết quả (có thể chưa index)")
             for r in results:
@@ -278,7 +278,7 @@ class TestTask5(unittest.TestCase):
         """Kết quả sorted theo score descending."""
         search = self._import_task5()
         try:
-            results = search("ecommerce return policy", top_k=5)
+            results = search("Coherence and Cohesion examiner comments", top_k=5)
             if len(results) < 2:
                 self.skipTest("Không đủ kết quả để test sort")
             scores = [r["score"] for r in results]
@@ -290,7 +290,7 @@ class TestTask5(unittest.TestCase):
         """Không trả về nhiều hơn top_k results."""
         search = self._import_task5()
         try:
-            results = search("test query", top_k=2)
+            results = search("Band 8 essay sample", top_k=2)
             self.assertLessEqual(len(results), 2)
         except NotImplementedError:
             self.skipTest("Chưa implement")
@@ -314,7 +314,7 @@ class TestTask6(unittest.TestCase):
         """lexical_search() trả về list."""
         search = self._import_task6()
         try:
-            results = search("return refund evidence policy", top_k=3)
+            results = search("Task Response IELTS Writing", top_k=3)
             self.assertIsInstance(results, list)
         except NotImplementedError:
             self.skipTest("lexical_search chưa implement")
@@ -323,7 +323,7 @@ class TestTask6(unittest.TestCase):
         """Mỗi result có 'content', 'score'."""
         search = self._import_task6()
         try:
-            results = search("seller listing regulations", top_k=3)
+            results = search("Grammatical Range and Accuracy", top_k=3)
             if not results:
                 self.skipTest("Không có kết quả")
             for r in results:
@@ -336,7 +336,7 @@ class TestTask6(unittest.TestCase):
         """Kết quả sorted theo BM25 score descending."""
         search = self._import_task6()
         try:
-            results = search("order tracking guide", top_k=5)
+            results = search("examiner comments sample response", top_k=5)
             if len(results) < 2:
                 self.skipTest("Không đủ kết quả")
             scores = [r["score"] for r in results]
@@ -348,7 +348,7 @@ class TestTask6(unittest.TestCase):
         """Query có keyword match phải có score > 0."""
         search = self._import_task6()
         try:
-            results = search("payment methods", top_k=3)
+            results = search("Band 8 examiner comments", top_k=3)
             if not results:
                 self.skipTest("Không có kết quả")
             # Ít nhất 1 result phải có score > 0
