@@ -13,6 +13,7 @@ Base URL: "https://openrouter.ai/api/v1", dùng chung interface với OpenAI SDK
 """
 
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -182,14 +183,23 @@ def _retrieve_chunks(query: str, top_k: int) -> tuple[list[dict], str]:
         chunks = retrieve(query, top_k=top_k)
         source = chunks[0].get("source", "hybrid") if chunks else "none"
         return chunks, source
-    except NotImplementedError:
+    except NotImplementedError as exc:
+        import traceback
+
         from .task5_semantic_search import semantic_search
 
-        print("  ⚠ Task 9 retrieve() chưa implement — tạm dùng semantic_search (Task 5).")
+        # NotImplementedError có thể đến từ bất kỳ task nào trong chuỗi
+        # (Task 6 BM25, Task 7 rerank, Task 8 PageIndex, Task 9 pipeline) — lấy tên
+        # hàm cuối trong traceback để chỉ đúng chỗ cần implement, thay vì mặc định
+        # quy hết cho Task 9.
+        frames = traceback.extract_tb(exc.__traceback__)
+        origin = f"{Path(frames[-1].filename).name}:{frames[-1].name}()" if frames else "unknown"
+
+        print(f"  ⚠ Retrieval chưa sẵn sàng ({origin}: {exc}) — tạm dùng semantic_search (Task 5).")
         chunks = semantic_search(query, top_k=top_k)
         for chunk in chunks:
             chunk["source"] = "semantic_only"
-        return chunks, "semantic_only (Task 9 chưa implement)"
+        return chunks, f"semantic_only (chưa implement: {origin})"
 
 
 def _build_retrieval_query(query: str, chat_history: list[dict] | None) -> str:

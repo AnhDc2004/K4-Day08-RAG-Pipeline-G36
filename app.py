@@ -30,7 +30,7 @@ STANDARDIZED_DIR = PROJECT_ROOT / "data" / "standardized"
 RETRIEVAL_LABELS = {
     "hybrid": ("✅", "Hybrid (Semantic + BM25 → RRF)"),
     "pageindex": ("🔁", "PageIndex Fallback (vectorless)"),
-    "semantic_only": ("⚠️", "Semantic-only — Task 9 chưa implement"),
+    "semantic_only": ("⚠️", "Semantic-only — chuỗi retrieval chưa sẵn sàng"),
     "none": ("❌", "Không tìm thấy tài liệu liên quan"),
 }
 
