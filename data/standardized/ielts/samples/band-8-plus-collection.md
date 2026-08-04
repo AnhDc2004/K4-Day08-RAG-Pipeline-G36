@@ -21,6 +21,12 @@ The official IELTS PDFs in this directory contain candidate scripts, reported ba
 
 ## Supplementary Band 8+ model-answer sources
 
+For local lab demonstrations, the repository also contains an explicitly synthetic set:
+
+- [Synthetic Band 8+ essays and rubric simulations](synthetic-band-8-plus-essays.md)
+
+It is suitable for retrieval tests, including Cause and Effect, Opinion and Discussion essay queries. It must be cited as `source_kind=synthetic`, never as an official examiner record.
+
 These are useful discovery links, but they are not presented as official examiner reports. Keep their attribution and score claim when adding a page to the corpus.
 
 | Source | Coverage | Comment status |

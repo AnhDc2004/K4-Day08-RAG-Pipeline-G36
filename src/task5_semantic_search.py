@@ -26,35 +26,39 @@ def semantic_search(query: str, top_k: int = 10) -> list[dict]:
         }
         Sorted by score descending.
     """
-    # TODO: Implement semantic search
-    #
-    # Bước 1: Embed query bằng cùng model ở Task 4
-    # Bước 2: Query vector store (cosine similarity)
-    # Bước 3: Return top_k results
-    #
-    # Ví dụ với ChromaDB:
-    # from .task4_chunking_indexing import get_collection, get_embedding_model
-    #
-    # model = get_embedding_model()
-    # query_vector = model.encode(query).tolist()
-    #
-    # collection = get_collection()
-    # results = collection.query(
-    #     query_embeddings=[query_vector],
-    #     n_results=top_k,
-    #     include=["documents", "metadatas", "distances"],
-    # )
-    #
-    # output = []
-    # for doc, meta, dist in zip(
-    #     results["documents"][0], results["metadatas"][0], results["distances"][0]
-    # ):
-    #     score = max(0.0, 1.0 - dist)  # cosine distance → similarity
-    #     output.append({"content": doc, "score": round(score, 4), "metadata": meta})
-    #
-    # output.sort(key=lambda x: x["score"], reverse=True)
-    # return output[:top_k]
-    raise NotImplementedError("Implement semantic_search")
+    if not isinstance(query, str) or not query.strip():
+        return []
+    if not isinstance(top_k, int) or top_k <= 0:
+        return []
+
+    from .task4_chunking_indexing import get_collection, get_embedding_model
+
+    collection = get_collection()
+    if collection is None or collection.count() == 0:
+        return []
+
+    model = get_embedding_model()
+    query_vector = model.encode(query, normalize_embeddings=True).tolist()
+    results = collection.query(
+        query_embeddings=[query_vector],
+        n_results=min(top_k, collection.count()),
+        include=["documents", "metadatas", "distances"],
+    )
+
+    output = []
+    for content, metadata, distance in zip(
+        results.get("documents", [[]])[0],
+        results.get("metadatas", [[]])[0],
+        results.get("distances", [[]])[0],
+    ):
+        # Chroma returns cosine distance; convert it to a readable similarity.
+        score = max(-1.0, min(1.0, 1.0 - float(distance)))
+        output.append({
+            "content": content,
+            "score": round(score, 4),
+            "metadata": metadata or {},
+        })
+    return sorted(output, key=lambda result: result["score"], reverse=True)
 
 
 if __name__ == "__main__":
