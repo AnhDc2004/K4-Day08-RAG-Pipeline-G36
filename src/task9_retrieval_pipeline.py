@@ -129,11 +129,6 @@ def retrieve(
 
     return final_results[:top_k]
 
-    # -------------------------------------------------------------------------
-    # Step 5: Trả về kết quả Top-K từ Hybrid Search
-    # -------------------------------------------------------------------------
-    return final_results[:top_k]
-
 if __name__ == "__main__":
     test_queries = [
         "What payment methods does Shopee support?",
