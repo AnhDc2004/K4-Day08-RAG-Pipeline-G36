@@ -27,31 +27,76 @@ và chỉ dùng nguồn công khai/được phép chia sẻ.
 
 from pathlib import Path
 
+import requests
+
 DATA_DIR = Path(__file__).parent.parent / "data" / "landing" / "legal"
 
+DOCUMENTS = [
+    {
+        "url": "https://takeielts.britishcouncil.org/sites/default/files/ielts_writing_band_descriptors.pdf",
+        "filename": "ielts-writing-band-descriptors.pdf",
+    },
+    {
+        "url": "https://ielts.org/cdn/computer-delivered-sample-tests-academic-writing/ielts-academic-writing-example-responses-to-parts-1-and-2-with-band-scores-and-examiner-comments.pdf",
+        "filename": "ielts-academic-writing-examiner-comments.pdf",
+    },
+    {
+        "url": "https://ielts.org/cdn/computer-delivered-sample-tests-general-training-writing/ielts-general-training-writing-example-responses-to-parts-1-and-2-with-band-scores-and-examiner-comments.pdf",
+        "filename": "ielts-general-training-writing-examiner-comments.pdf",
+    },
+]
 
-def setup_directory():
-    """Tạo thư mục data/landing/legal/ nếu chưa có."""
+
+def setup_directory() -> None:
+    """Create the landing directory if it does not exist."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    print(f"✓ Thư mục đã sẵn sàng: {DATA_DIR}")
+    print(f"Directory ready: {DATA_DIR}")
 
 
-# TODO: Tải file PDF/DOCX về DATA_DIR
-# Có thể tải thủ công hoặc viết script download nếu có direct link.
-#
-# Ví dụ nếu có direct link:
-#
-# import requests
-#
-# def download_file(url: str, filename: str):
-#     response = requests.get(url)
-#     filepath = DATA_DIR / filename
-#     filepath.write_bytes(response.content)
-#     print(f"✓ Đã tải: {filepath}")
-#
-# Nếu trang là HTML thuần (không phải PDF sẵn), có thể convert nội dung text
-# thành PDF đơn giản bằng thư viện fpdf2 (đã có trong requirements.txt).
+def download_file(url: str, filename: str, timeout: int = 60) -> Path:
+    """Download one PDF atomically and reject an HTML/error response."""
+    setup_directory()
+    destination = DATA_DIR / filename
+    temporary = destination.with_suffix(destination.suffix + ".tmp")
+
+    response = requests.get(
+        url,
+        headers={"User-Agent": "K4-RAG-IELTS-Collector/1.0"},
+        stream=True,
+        timeout=timeout,
+    )
+    response.raise_for_status()
+    content_type = response.headers.get("content-type", "").lower()
+    if "text/html" in content_type:
+        raise ValueError(f"Expected PDF but received HTML: {url}")
+
+    with temporary.open("wb") as output:
+        for chunk in response.iter_content(chunk_size=1024 * 128):
+            if chunk:
+                output.write(chunk)
+
+    if temporary.stat().st_size <= 1024 or temporary.read_bytes()[:4] != b"%PDF":
+        temporary.unlink(missing_ok=True)
+        raise ValueError(f"Downloaded file is not a valid PDF: {url}")
+
+    temporary.replace(destination)
+    print(f"Saved: {destination.name} ({destination.stat().st_size:,} bytes)")
+    return destination
+
+
+def collect_documents() -> list[Path]:
+    """Download all configured documents and return their local paths."""
+    setup_directory()
+    paths = []
+    for document in DOCUMENTS:
+        destination = DATA_DIR / document["filename"]
+        if destination.exists() and destination.stat().st_size > 1024:
+            print(f"Exists: {destination.name}")
+            paths.append(destination)
+            continue
+        paths.append(download_file(document["url"], document["filename"]))
+    return paths
 
 
 if __name__ == "__main__":
-    setup_directory()
+    collect_documents()

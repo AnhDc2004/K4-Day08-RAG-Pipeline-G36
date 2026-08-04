@@ -25,62 +25,68 @@ LANDING_DIR = Path(__file__).parent.parent / "data" / "landing"
 OUTPUT_DIR = Path(__file__).parent.parent / "data" / "standardized"
 
 
-def convert_legal_docs():
-    """Convert PDF/DOCX files trong data/landing/legal/ sang markdown."""
-    legal_dir = LANDING_DIR / "legal"
+def _write_markdown(path: Path, content: str) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content.strip() + "\n", encoding="utf-8")
+    return path
+
+
+def convert_legal_docs() -> list[Path]:
+    """Convert every PDF/DOC/DOCX in the legal landing directory."""
+    input_dir = LANDING_DIR / "legal"
     output_dir = OUTPUT_DIR / "legal"
-    output_dir.mkdir(parents=True, exist_ok=True)
+    converter = MarkItDown()
+    converted = []
+    for filepath in sorted(input_dir.iterdir()):
+        if filepath.suffix.lower() not in {".pdf", ".doc", ".docx"}:
+            continue
+        print(f"Converting: {filepath.name}")
+        result = converter.convert(str(filepath))
+        content = (
+            "---\n"
+            "source_kind: official\n"
+            f"source_file: {filepath.name}\n"
+            "doc_type: ielts_writing_source\n"
+            "---\n\n"
+            f"# {filepath.stem.replace('-', ' ').title()}\n\n"
+            + result.text_content
+        )
+        converted.append(_write_markdown(output_dir / f"{filepath.stem}.md", content))
+    return converted
 
-    md = MarkItDown()
 
-    for filepath in legal_dir.iterdir():
-        if filepath.suffix.lower() in (".pdf", ".docx", ".doc"):
-            print(f"Converting: {filepath.name}")
-            # TODO: Convert và lưu file
-            # result = md.convert(str(filepath))
-            # output_path = output_dir / f"{filepath.stem}.md"
-            # output_path.write_text(result.text_content, encoding="utf-8")
-            # print(f"  ✓ Saved: {output_path}")
-            raise NotImplementedError("Implement convert_legal_docs")
-
-
-def convert_news_articles():
-    """Convert JSON crawled articles trong data/landing/news/ sang markdown."""
-    news_dir = LANDING_DIR / "news"
+def convert_news_articles() -> list[Path]:
+    """Convert JSON web records while preserving source and crawl metadata."""
+    input_dir = LANDING_DIR / "news"
     output_dir = OUTPUT_DIR / "news"
-    output_dir.mkdir(parents=True, exist_ok=True)
+    converted = []
+    for filepath in sorted(input_dir.iterdir()):
+        if filepath.suffix.lower() != ".json":
+            continue
+        print(f"Converting: {filepath.name}")
+        data = json.loads(filepath.read_text(encoding="utf-8"))
+        content = data.get("content_markdown") or data.get("content") or ""
+        if not isinstance(content, str) or not content.strip():
+            raise ValueError(f"Missing article content: {filepath}")
+        header = (
+            "---\n"
+            f"title: {data.get('title', 'Unknown')}\n"
+            "doc_type: ielts_writing_web_resource\n"
+            f"source_kind: {data.get('source_kind', 'unknown')}\n"
+            f"source_url: {data.get('url', 'N/A')}\n"
+            f"date_crawled: {data.get('date_crawled', 'N/A')}\n"
+            "---\n\n"
+            f"# {data.get('title', 'Unknown')}\n\n"
+        )
+        converted.append(_write_markdown(output_dir / f"{filepath.stem}.md", header + content))
+    return converted
 
-    for filepath in news_dir.iterdir():
-        if filepath.suffix.lower() == ".json":
-            print(f"Converting: {filepath.name}")
-            # TODO: Đọc JSON, extract content_markdown, lưu thành .md
-            # data = json.loads(filepath.read_text(encoding="utf-8"))
-            # output_path = output_dir / f"{filepath.stem}.md"
-            #
-            # # Thêm metadata header
-            # header = f"# {data.get('title', 'Unknown')}\n\n"
-            # header += f"**Source:** {data.get('url', 'N/A')}\n"
-            # header += f"**Crawled:** {data.get('date_crawled', 'N/A')}\n\n---\n\n"
-            #
-            # content = header + data.get("content_markdown", "")
-            # output_path.write_text(content, encoding="utf-8")
-            # print(f"  ✓ Saved: {output_path}")
-            raise NotImplementedError("Implement convert_news_articles")
 
-
-def convert_all():
-    """Convert toàn bộ files."""
-    print("=" * 50)
-    print("Task 3: Convert to Markdown (MarkItDown)")
-    print("=" * 50)
-
-    print("\n--- Legal Documents ---")
-    convert_legal_docs()
-
-    print("\n--- News Articles ---")
-    convert_news_articles()
-
-    print("\n✓ Done! Output tại:", OUTPUT_DIR)
+def convert_all() -> None:
+    print("Task 3: Convert to Markdown")
+    legal = convert_legal_docs()
+    news = convert_news_articles()
+    print(f"Done: {len(legal)} legal documents, {len(news)} web resources")
 
 
 if __name__ == "__main__":
