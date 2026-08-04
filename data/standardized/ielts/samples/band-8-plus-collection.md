@@ -7,7 +7,7 @@ date_accessed: 2026-08-04
 
 # IELTS Writing Band 8+ Sample Collection
 
-## Scope
+Sc## ope
 
 This catalog separates official examiner-marked material from supplementary model-answer pages. A page calling an essay “Band 8” is not, by itself, proof that it was assessed by an official IELTS examiner.
 

@@ -126,28 +126,24 @@ def rerank_rrf(
     Returns:
         List of top_k candidates sorted by RRF score descending.
     """
-    # TODO: Implement RRF
-    #
-    # rrf_scores = {}  # content -> score
-    # content_map = {}  # content -> full dict
-    #
-    # for ranked_list in ranked_lists:
-    #     for rank, item in enumerate(ranked_list, 1):
-    #         key = item["content"]
-    #         rrf_scores[key] = rrf_scores.get(key, 0) + 1 / (k + rank)
-    #         content_map[key] = item
-    #
-    # # Sort by RRF score
-    # sorted_items = sorted(rrf_scores.items(), key=lambda x: x[1], reverse=True)
-    #
-    # results = []
-    # for content, score in sorted_items[:top_k]:
-    #     item = content_map[content].copy()
-    #     item["score"] = score
-    #     results.append(item)
-    #
-    # return results
-    raise NotImplementedError("Implement rerank_rrf")
+    rrf_scores: dict[str, float] = {}
+    content_map: dict[str, dict] = {}
+
+    for ranked_list in ranked_lists:
+        for rank, item in enumerate(ranked_list, 1):
+            key = item["content"]
+            rrf_scores[key] = rrf_scores.get(key, 0) + 1 / (k + rank)
+            content_map[key] = item
+
+    sorted_items = sorted(rrf_scores.items(), key=lambda x: x[1], reverse=True)
+
+    results = []
+    for content, score in sorted_items[:top_k]:
+        item = content_map[content].copy()
+        item["score"] = score
+        results.append(item)
+
+    return results
 
 
 # =============================================================================
@@ -178,8 +174,10 @@ def rerank(
         # Cần query_embedding - embed query trước
         raise NotImplementedError("Call rerank_mmr with query_embedding")
     elif method == "rrf":
-        # RRF cần nhiều ranked lists - gọi riêng
-        raise NotImplementedError("Call rerank_rrf with ranked_lists")
+        # candidates ở đây là 1 list đã gộp sẵn (vd. từ Task 9) — RRF xử lý
+        # nó như 1 ranker duy nhất. Nếu cần fuse nhiều ranker, gọi rerank_rrf
+        # trực tiếp với list[list[dict]].
+        return rerank_rrf([candidates], top_k=top_k)
     else:
         raise ValueError(f"Unknown rerank method: {method}")
 
