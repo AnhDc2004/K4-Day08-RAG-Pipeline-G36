@@ -530,10 +530,10 @@ run_dashboard()
 
 #### Deliverable Evaluation
 
-- [ ] File `group_project/evaluation/golden_dataset.json` — 15+ cặp Q&A
-- [ ] File `group_project/evaluation/eval_pipeline.py` — script chạy evaluation
-- [ ] File `group_project/evaluation/results.md` — bảng điểm + phân tích
-- [ ] So sánh A/B ít nhất 2 configs
+- [x] File `group_project/evaluation/golden_dataset.json` — 15+ cặp Q&A
+- [x] File `group_project/evaluation/eval_pipeline.py` — script chạy evaluation
+- [x] File `group_project/evaluation/results.md` — bảng điểm + phân tích
+- [x] So sánh A/B ít nhất 2 configs
 
 ---
 
@@ -549,9 +549,108 @@ run_dashboard()
 
 ### Kiến Trúc Hệ Thống
 
-```
-[Vẽ diagram kiến trúc ở đây]
-```
+                               ┌──────────────────────────────────────────────┐
+                               │             DATA SOURCES & INGESTION         │
+                               └──────────────────────────────────────────────┘
+                                                       │
+            ┌──────────────────────────────────────────┴──────────────────────────────────────────┐
+            ▼                                                                                     ▼
+ ┌──────────────────────┐                                                              ┌──────────────────────┐
+ │     Task 1: Legal    │                                                              │     Task 2: News     │
+ │  (PDF Downloader)    │                                                              │  (Web Scraper/JSON)  │
+ └──────────┬───────────┘                                                              └──────────┬───────────┘
+            │ raw .pdf                                                                            │ raw .json
+            ▼                                                                                     ▼
+ ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+ │                                         data/landing/                                                      │
+ └──────────────────────────────────────────────────────────────────────┬─────────────────────────────────────┘
+                                                                        │
+                                                                        ▼
+                                                       ┌─────────────────────────────────┐
+                                                       │        Task 3: Converter        │
+                                                       │     (MarkItDown & Parsers)      │
+                                                       └────────────────┬────────────────┘
+                                                                        │
+                                                                        ▼ .md
+                                                       ┌─────────────────────────────────┐
+                                                       │        data/standardized/       │
+                                                       └────────────────┬────────────────┘
+                                                                        │
+                                                                        ▼
+                                                       ┌─────────────────────────────────┐
+                                                       │   Task 4: Chunking & Indexing   │
+                                                       │  • Splitter: Recursive (800/100)│
+                                                       │  • Model: BAAI/bge-m3 (1024d)   │
+                                                       └────────────────┬────────────────┘
+                                                                        │
+                                              ┌─────────────────────────┴─────────────────────────┐
+                                              ▼                                                   ▼
+                                 ┌─────────────────────────┐                         ┌─────────────────────────┐
+                                 │   ChromaDB (Vector)     │                         │   BM25 Corpus (In-Mem)  │
+                                 │   (chroma_db/)          │                         │   (Task 6)              │
+                                 └─────────────────────────┘                         └─────────────────────────┘
+
+
+========================================================================================================================
+
+
+                               ┌──────────────────────────────────────────────┐
+                               │             RETRIEVAL & GENERATION           │
+                               └──────────────────────────────────────────────┘
+
+                                                   User Query
+                                                       │
+                                                       ▼
+                                       ┌───────────────────────────────┐
+                                       │ Task 9: Main Retrieval Engine │
+                                       └───────────────┬───────────────┘
+                                                       │
+                                   ┌───────────────────┴───────────────────┐
+                                   │ (ThreadPoolExecutor - Parallel Exec)  │
+                                   ▼                                       ▼
+                     ┌───────────────────────────┐           ┌───────────────────────────┐
+                     │  Task 5: Semantic Search  │           │   Task 6: Lexical Search  │
+                     │   (ChromaDB + Cosine Sim) │           │ (BM25Okapi Keyword Search)│
+                     └─────────────┬─────────────┘           └─────────────┬─────────────┘
+                                   │                                       │
+                                   └───────────────────┬───────────────────┘
+                                                       │ Dense & Sparse Top-K
+                                                       ▼
+                                       ┌───────────────────────────────┐
+                                       │   Task 7: Reranking & Fusion  │
+                                       │   (Reciprocal Rank Fusion - RRF)│
+                                       └───────────────┬───────────────┘
+                                                       │
+                                                       ▼
+                                       ┌───────────────────────────────┐
+                                       │   Threshold Decision Check    │
+                                       │ (Best Cosine Score < 0.3 ?)   │
+                                       └───────────────┬───────────────┘
+                                                       │
+                        ┌──────────────────────────────┴──────────────────────────────┐
+                    NO  │ (High Relevance)                                        YES │ (Low Relevance / Out of Scope)
+                        ▼                                                             ▼
+           ┌──────────────────────────┐                                 ┌──────────────────────────┐
+           │   Use Hybrid Candidates  │                                 │ Task 8: PageIndex (Fallback)
+           │     (source: 'hybrid')   │                                 │ (Vectorless Structural Search)
+           └────────────┬─────────────┘                                 └────────────┬─────────────┘
+                        │                                                            │
+                        └──────────────────────────────┬─────────────────────────────┘
+                                                       │ Top Chunks Selected
+                                                       ▼
+                                       ┌───────────────────────────────┐
+                                       │   Task 10: Generation Module  │
+                                       ├───────────────────────────────┤
+                                       │ 1. Reorder ("Lost-in-Middle") │
+                                       │    [1, 2, 3, 4, 5] ->          │
+                                       │    [1, 3, 5, 4, 2]            │
+                                       │ 2. Context Formatting         │
+                                       │ 3. LLM (GPT-4o-Mini) Query    │
+                                       └───────────────┬───────────────┘
+                                                       │
+                                                       ▼
+                                              Final Structured Answer
+                                               (With Citations)
 
 ---
 
@@ -559,10 +658,11 @@ run_dashboard()
 
 | Thành viên | MSSV | Nhiệm vụ | Trạng thái |
 |-----------|------|----------|------------|
-| | | | |
-| | | | |
-| | | | |
-| | | | |
+| Đinh Đức Anh | 2A202601714 | Role 1: Team Leader & RAG Architect  | Hoàn Thành |
+| Phan Văn Phương | 2A202602033 | Role 2: Data & Dense Search Dev | Hoàn Thành |
+| Lê Huy Hoàng | 2A202601660 | Role 3: Sparse Search & Advanced Reranking Dev | Hoàn Thành |
+| Trần Minh Hạnh | 2A202601232 | Role 4: Frontend & Chatbot Developer |Hoàn Thành |
+| Nguyễn Thành Huy | 2A202601802 | Role 5: Evaluation & QA Engineer | Hoàn Thành |
 
 ---
 
