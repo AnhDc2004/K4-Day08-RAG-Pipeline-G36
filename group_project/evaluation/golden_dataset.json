@@ -1,17 +1,82 @@
 [
   {
-    "question": "Người mua có thể yêu cầu trả hàng/hoàn tiền trong thời hạn bao lâu sau khi nhận hàng?",
-    "expected_answer": "Trong vòng 15 ngày kể từ khi giao hàng thành công (24 giờ đối với thực phẩm tươi sống/đông lạnh).",
-    "expected_context": "Trang Returns and Refunds Policy, mục Return/Refund Eligibility"
+    "question": "Các tiêu chí đánh giá IELTS Writing gồm những gì?",
+    "expected_answer": "IELTS Writing được đánh giá trên bốn tiêu chí chính: Task Achievement, Coherence and Cohesion, Lexical Resource và Grammatical Range and Accuracy.",
+    "expected_context": "IELTS Writing Band Descriptors, assessment criteria"
   },
   {
-    "question": "Shopee hỗ trợ những phương thức thanh toán nào?",
-    "expected_answer": "ShopeePay Wallet, thẻ tín dụng/ghi nợ, trả góp qua thẻ, QR Code, chuyển khoản qua app ngân hàng, thẻ NAPAS, Apple Pay, Google Pay, và COD.",
-    "expected_context": "Trang Payment Methods Overview"
+    "question": "Sự khác nhau giữa coherence và cohesion là gì?",
+    "expected_answer": "Coherence liên quan đến cách trình bày ý tưởng rõ ràng và logic, còn cohesion liên quan đến cách nối các ý bằng từ nối và cấu trúc liên kết.",
+    "expected_context": "Coherence and cohesion descriptor"
   },
   {
-    "question": "Người bán không được đăng bán những sản phẩm nào?",
-    "expected_answer": "Hàng giả/nhái, sản phẩm bất hợp pháp, vi phạm sở hữu trí tuệ, và các mặt hàng nằm trong danh sách cấm của sàn.",
-    "expected_context": "Trang Product Listing Regulations, mục Prohibited Content"
+    "question": "Một bài viết band 8 cần thể hiện những đặc điểm nào về task achievement?",
+    "expected_answer": "Band 8 cần trả lời đầy đủ yêu cầu đề bài, trình bày ý chính rõ ràng, có đủ chi tiết hỗ trợ và không lạc đề.",
+    "expected_context": "Task Achievement band 8 descriptor"
+  },
+  {
+    "question": "Band 8 yêu cầu gì ở phần coherence and cohesion?",
+    "expected_answer": "Band 8 cần tổ chức ý một cách hợp lý, có liên kết mạch lạc giữa các đoạn và sử dụng các liên từ, đại từ và cấu trúc nối phù hợp.",
+    "expected_context": "Coherence and cohesion band 8"
+  },
+  {
+    "question": "Lexical resource ở band 9 có đặc điểm gì?",
+    "expected_answer": "Band 9 dùng từ vựng phong phú, chính xác, tự nhiên và có khả năng dùng các cấu trúc từ linh hoạt ở mức nâng cao.",
+    "expected_context": "Lexical Resource band 9"
+  },
+  {
+    "question": "Grammatical range and accuracy ở band 8 cần như thế nào?",
+    "expected_answer": "Band 8 cần dùng đa dạng cấu trúc ngữ pháp, ít lỗi, và có thể dùng câu phức một cách tự nhiên.",
+    "expected_context": "Grammatical Range and Accuracy band 8"
+  },
+  {
+    "question": "Một câu trả lời band 6 thường có nhược điểm gì?",
+    "expected_answer": "Band 6 thường có ý tưởng đủ nhưng còn thiếu sâu, cách trình bày chưa thật mạch lạc và lỗi ngữ pháp vừa phải.",
+    "expected_context": "Band 6 descriptor"
+  },
+  {
+    "question": "Cách dùng cohesive devices ảnh hưởng thế nào đến điểm số?",
+    "expected_answer": "Việc dùng cohesive devices đúng chỗ giúp bài viết mạch lạc, tăng điểm cho coherence and cohesion và làm người chấm dễ theo dõi ý tưởng.",
+    "expected_context": "Use of cohesive devices"
+  },
+  {
+    "question": "Điểm khác nhau giữa Task 1 và Task 2 trong IELTS Writing là gì?",
+    "expected_answer": "Task 1 thường yêu cầu mô tả dữ liệu hoặc bản đồ, còn Task 2 yêu cầu viết một bài luận tranh luận hoặc phản hồi về một vấn đề.",
+    "expected_context": "Task 1 and Task 2 difference"
+  },
+  {
+    "question": "Một bài band 8 nên có cấu trúc đoạn văn như thế nào?",
+    "expected_answer": "Band 8 nên có bố cục rõ ràng, mỗi đoạn tập trung vào một ý chính, có mở đầu và kết thúc phù hợp.",
+    "expected_context": "Paragraphing and organization"
+  },
+  {
+    "question": "What does a high-scoring essay do with examples and support?",
+    "expected_answer": "A high-scoring essay develops ideas with relevant support, examples, and clear explanation rather than listing vague points.",
+    "expected_context": "Support and development of ideas"
+  },
+  {
+    "question": "Why is accuracy important in IELTS Writing?",
+    "expected_answer": "Accuracy matters because grammar and word choice errors reduce clarity and lower the score for grammatical range and accuracy and lexical resource.",
+    "expected_context": "Accuracy and clarity"
+  },
+  {
+    "question": "What is the main focus of Task Achievement?",
+    "expected_answer": "Task Achievement focuses on answering the task fully, covering all parts of the prompt and presenting relevant ideas clearly.",
+    "expected_context": "Task Achievement focus"
+  },
+  {
+    "question": "How can a candidate improve coherence and cohesion?",
+    "expected_answer": "A candidate can improve coherence and cohesion by organizing ideas logically, using paragraphing, and linking sentences with appropriate connectors.",
+    "expected_context": "Improving coherence and cohesion"
+  },
+  {
+    "question": "What signals a strong lexical resource in writing?",
+    "expected_answer": "Strong lexical resource is shown by precise word choice, a wide range of vocabulary, and natural use of collocations and topic-specific terms.",
+    "expected_context": "Lexical resource strength"
+  },
+  {
+    "question": "Why do examiners look at paragraphing in IELTS Writing?",
+    "expected_answer": "Examiners look at paragraphing because it shows how well the writer organizes ideas and manages the overall structure of the response.",
+    "expected_context": "Paragraphing and organization"
   }
 ]
