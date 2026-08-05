@@ -8,11 +8,11 @@
 
 | Metric | Hybrid + RRF | Dense-only | Δ |
 |--------|---------------|------------|---|
-| faithfulness | 0.288 | 0.000 | +0.288 |
-| answer_relevance | 0.043 | 0.021 | +0.022 |
-| context_recall | 0.321 | 0.000 | +0.321 |
-| context_precision | 1.000 | 0.000 | +1.000 |
-| average | 0.413 | 0.005 | +0.408 |
+| faithfulness | 0.304 | 0.258 | +0.046 |
+| answer_relevance | 0.051 | 0.069 | -0.018 |
+| context_recall | 0.368 | 0.339 | +0.029 |
+| context_precision | 1.000 | 1.000 | +0.000 |
+| average | 0.431 | 0.416 | +0.015 |
 
 ## A/B Comparison Analysis
 
